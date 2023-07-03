@@ -189,3 +189,4 @@ build
 buildtrees
 donotpresent
 .vscode
+compile_commands.json
