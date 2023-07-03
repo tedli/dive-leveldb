@@ -1,0 +1,14 @@
+[
+{
+  "directory": "C:/Users/lizhen/Documents/Development/dive-leveldb/build",
+  "command": "C:\\PROGRA~1\\mingw64\\bin\\CLANG_~1.EXE  @CMakeFiles/dive-leveldb.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\dive-leveldb.dir\\src\\main.cc.obj -c C:\\Users\\lizhen\\Documents\\Development\\dive-leveldb\\src\\main.cc",
+  "file": "C:/Users/lizhen/Documents/Development/dive-leveldb/src/main.cc",
+  "output": "CMakeFiles/dive-leveldb.dir/src/main.cc.obj"
+},
+{
+  "directory": "C:/Users/lizhen/Documents/Development/dive-leveldb/build",
+  "command": "C:\\PROGRA~1\\mingw64\\bin\\CLANG_~1.EXE  @CMakeFiles/dive-leveldb.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\dive-leveldb.dir\\build_version.cc.obj -c C:\\Users\\lizhen\\Documents\\Development\\dive-leveldb\\build\\build_version.cc",
+  "file": "C:/Users/lizhen/Documents/Development/dive-leveldb/build/build_version.cc",
+  "output": "CMakeFiles/dive-leveldb.dir/build_version.cc.obj"
+}
+]
