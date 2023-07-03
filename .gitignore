@@ -185,8 +185,8 @@ fabric.properties
 # End of https://mrkandreev.name/snippets/gitignore-generator/#C++,Linux,macOS,Windows,JetBrains+all,VisualStudioCode
 
 .cache
+.vscode
 build
 buildtrees
-donotpresent
-.vscode
+deps
 compile_commands.json
