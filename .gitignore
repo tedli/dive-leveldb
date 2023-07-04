@@ -190,3 +190,4 @@ build
 buildtrees
 deps
 compile_commands.json
+debug
