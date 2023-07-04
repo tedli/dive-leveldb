@@ -239,5 +239,8 @@ target_include_directories(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
   ${GLOG_LIBRARY}
   ${GFLAGS_LIBRARY}
-  ${LEVELDB_LIBRARY}
-  pthread)
+  ${LEVELDB_LIBRARY})
+
+if (MINGW)
+target_link_libraries(${PROJECT_NAME} pthread shlwapi)
+endif()
