@@ -231,7 +231,7 @@ add_executable(${PROJECT_NAME}
 
 target_link_directories(${PROJECT_NAME} PUBLIC ${INSTALL_LIBDIR})
 
-add_dependencies(${PROJECT_NAME} gtest glog)
+add_dependencies(${PROJECT_NAME} gtest gflags glog leveldb)
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE $<$<CXX_COMPILER_ID:MSVC>:GLOG_NO_ABBREVIATED_SEVERITIES>)
 
