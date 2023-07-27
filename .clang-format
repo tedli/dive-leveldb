@@ -8,7 +8,9 @@ DerivePointerAlignment: false
 # Order them so that when imported to the authoritative repository they will be
 # in correct alphabetical order.
 IncludeCategories:
-  - Regex:           '^"(include)/'
+  - Regex:           '^<.*\.h>'
     Priority:        1
-  - Regex:           '.*'
+  - Regex:           '^<.*'
     Priority:        2
+  - Regex:           '.*'
+    Priority:        3

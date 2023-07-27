@@ -1,9 +1,9 @@
-#include "include/build_version.h"
-
 #include <glog/logging.h>
 #include <leveldb/db.h>
 #include <leveldb/iterator.h>
 #include <leveldb/options.h>
+
+#include "include/build_version.h"
 
 int main(int argc, char** argv) {
   FLAGS_logtostdout = true;
@@ -24,8 +24,8 @@ int main(int argc, char** argv) {
   if (!status.ok()) {
     LOG(ERROR) << "put failed: " << status.ToString();
     return -1;
-  } else {
     LOG(INFO) << "put succeed: " << status.ToString();
+  } else {
   }
   leveldb::ReadOptions read_options;
   leveldb::Iterator* iterator = db->NewIterator(read_options);

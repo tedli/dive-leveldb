@@ -10,7 +10,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 enable_testing()
 
 if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE RElEASE)
+  set(CMAKE_BUILD_TYPE RELEASE)
 endif()
 
 string(TOUPPER ${CMAKE_BUILD_TYPE} BUILD_TYPE)
@@ -22,13 +22,24 @@ elseif(${BUILD_TYPE} STREQUAL MINSIZEREL)
 elseif(${BUILD_TYPE} STREQUAL RELWITHDEBINFO)
   set(LIB_BUILD_TYPE RELWITHDEBINFO)
 else()
-  set(LIB_BUILD_TYPE RElEASE)
+  set(LIB_BUILD_TYPE RELEASE)
   set(CMAKE_CXX_FLAGS_RELEASE "-O2")
 endif()
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
-  set(CMAKE_CXX_FLAGS "-pthread -Wl,--no-as-needed -ldl")
+  set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++ ${CMAKE_EXE_LINKER_FLAGS}")
+  set(CMAKE_CXX_FLAGS "-pthread -Wl,--no-as-needed -ldl ${CMAKE_CXX_FLAGS}")
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  set(CMAKE_EXE_LINKER_FLAGS "-stdlib=libc++ -fuse-ld=lld -lc++ -lc++abi -static ${CMAKE_EXE_LINKER_FLAGS}")
+  set(CMAKE_CXX_FLAGS "-stdlib=libc++ -pthread ${CMAKE_CXX_FLAGS}")
+endif()
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+  set(LIB_EXTENSION "lib")
+  set(LIB_PREFIX "")
+else()
+  set(LIB_EXTENSION "a")
+  set(LIB_PREFIX "lib")
 endif()
 
 if(HOST_ARCH MATCHES "x86_64" OR HOST_ARCH MATCHES "i386")
@@ -68,13 +79,11 @@ ExternalProject_Add(gtest
   -DCMAKE_BUILD_TYPE=${LIB_BUILD_TYPE}
   BUILD_ALWAYS
   0
-  BUILD_COMMAND
-  make -j${CPU_CORE}
 )
 
-set(GTEST_LIBRARY ${INSTALL_LIBDIR}/libgtest.a)
-set(GTEST_MAIN_LIBRARY ${INSTALL_LIBDIR}/libgtest_main.a)
-set(GMOCK_LIBRARY ${INSTALL_LIBDIR}/libgmock.a)
+set(GTEST_LIBRARY ${INSTALL_LIBDIR}/${LIB_PREFIX}gtest.${LIB_EXTENSION})
+set(GTEST_MAIN_LIBRARY ${INSTALL_LIBDIR}/${LIB_PREFIX}gtest_main.${LIB_EXTENSION})
+set(GMOCK_LIBRARY ${INSTALL_LIBDIR}/${LIB_PREFIX}gmock.${LIB_EXTENSION})
 set(GTEST_INCLUDE_DIR ${INSTALL_INCLUDEDIR})
 set(GTEST_MAIN_INCLUDE_DIR ${INSTALL_INCLUDEDIR})
 set(GMOCK_INCLUDE_DIR ${INSTALL_INCLUDEDIR})
@@ -102,14 +111,12 @@ ExternalProject_Add(gflags
   -DGFLAGS_NAMESPACE=gflags
   -DBUILD_STATIC_LIBS=ON
   -DBUILD_SHARED_LIBS=OFF
-  BUILD_COMMAND
-  make -j${CPU_CORE}
 )
 
 if(${LIB_BUILD_TYPE} STREQUAL DEBUG)
-  set(LIB_GFLAGS libgflags_static_debug.a)
+  set(LIB_GFLAGS ${LIB_PREFIX}gflags_static_debug.${LIB_EXTENSION})
 else()
-  set(LIB_GFLAGS libgflags_static.a)
+  set(LIB_GFLAGS ${LIB_PREFIX}gflags_static.${LIB_EXTENSION})
 endif()
 
 set(GFLAGS_LIBRARY ${INSTALL_LIBDIR}/${LIB_GFLAGS})
@@ -143,14 +150,12 @@ ExternalProject_Add(glog
   -DBUILD_SHARED_LIBS=OFF
   -DWITH_UNWIND=OFF
   -DCMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}
-  BUILD_COMMAND
-  make -j${CPU_CORE}
 )
 
 if(${LIB_BUILD_TYPE} STREQUAL DEBUG)
-  set(LIB_GLOG libglogd.a)
+  set(LIB_GLOG ${LIB_PREFIX}glogd.${LIB_EXTENSION})
 else()
-  set(LIB_GLOG libglog.a)
+  set(LIB_GLOG ${LIB_PREFIX}glog.${LIB_EXTENSION})
 endif()
 
 set(GLOG_LIBRARY ${INSTALL_LIBDIR}/${LIB_GLOG})
@@ -180,11 +185,9 @@ ExternalProject_Add(leveldb
   -DLEVELDB_BUILD_BENCHMARKS=OFF
   -DLEVELDB_INSTALL=ON
   -DCMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}
-  BUILD_COMMAND
-  make -j${CPU_CORE}
 )
 
-set(LIB_LEVELDB libleveldb.a)
+set(LIB_LEVELDB ${LIB_PREFIX}leveldb.${LIB_EXTENSION})
 set(LEVELDB_LIBRARY ${INSTALL_LIBDIR}/${LIB_LEVELDB})
 set(LEVELDB_INCLUDE_DIR ${INSTALL_INCLUDEDIR})
 
@@ -228,7 +231,9 @@ add_executable(${PROJECT_NAME}
 
 target_link_directories(${PROJECT_NAME} PUBLIC ${INSTALL_LIBDIR})
 
-add_dependencies(${PROJECT_NAME} gtest)
+add_dependencies(${PROJECT_NAME} gtest glog)
+
+target_compile_definitions(${PROJECT_NAME} PRIVATE $<$<CXX_COMPILER_ID:MSVC>:GLOG_NO_ABBREVIATED_SEVERITIES>)
 
 target_include_directories(${PROJECT_NAME}
   PUBLIC ${CMAKE_CURRENT_BINARY_DIR}
@@ -241,6 +246,10 @@ target_link_libraries(${PROJECT_NAME}
   ${GFLAGS_LIBRARY}
   ${LEVELDB_LIBRARY})
 
+if(${CMAKE_HOST_SYSTEM_NAME} STREQUAL Windows)
+  target_link_libraries(${PROJECT_NAME} shlwapi)
+endif()
+
 if (MINGW)
-target_link_libraries(${PROJECT_NAME} pthread shlwapi)
+  target_link_libraries(${PROJECT_NAME} pthread)
 endif()
